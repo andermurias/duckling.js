@@ -1,0 +1,19 @@
+{
+  "name": "duckling",
+  "version": "1.0.0",
+  "description": "JS cursor follower",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "repository": "git@github.com:andermurias/duckling.git",
+  "author": "Ander Murias <ander@murias.nl>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "rollup": "^2.13.1",
+    "rollup-plugin-babel": "^4.4.0"
+  }
+}
