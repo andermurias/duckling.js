@@ -2,18 +2,33 @@
   "name": "duckling",
   "version": "1.0.0",
   "description": "JS cursor follower",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
+  "main": "dist/duckling.cjs.js",
+  "module": "dist/duckling.esm.js",
+  "browser": "dist/duckling.umd.js",
   "repository": "git@github.com:andermurias/duckling.git",
   "author": "Ander Murias <ander@murias.nl>",
   "license": "MIT",
-  "scripts": {
-    "build": "rollup -c"
+  "dependencies": {
+    "gsap": "^3.5.1",
+    "ms": "^2.0.0"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "rollup": "^2.13.1",
-    "rollup-plugin-babel": "^4.4.0"
-  }
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "core-js": "^3.6.5",
+    "regenerator-runtime": "^0.13.7",
+    "rollup": "^1.0.0",
+    "rollup-plugin-babel": "^4.2.0",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "node test/test.js",
+    "pretest": "npm run build"
+  },
+  "files": [
+    "dist"
+  ]
 }
