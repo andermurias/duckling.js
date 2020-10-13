@@ -28,13 +28,12 @@ import {init, getProps, px} from 'duckling';
 
 Initialize
 ```javascript
-const {loadInteractionListeners} = init();
+const {initialProps, interactionConfig} = init();
 ```
 
 Generate the interactions
 ```javascript
-loadInteractionListeners({
-  '.nav-item': (elem) => {
+interactionConfig.set('.nav-item', (elem) => {
     const coordinates = elem.getBoundingClientRect();
     const props = getProps();
     return {
@@ -45,6 +44,7 @@ loadInteractionListeners({
       },
       track: false,
     };
-  },
-});
+  });
 ```
+
+`interactionConfig` is a Map class from js sou you can interact with it with methods like `set` or `delete`

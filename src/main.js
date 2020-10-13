@@ -2,7 +2,7 @@ import gsap from 'gsap';
 import {createPointer} from './element';
 
 export const getProperty = (prop) => getComputedStyle(document.documentElement).getPropertyValue(prop);
-export const setProperty = (prop, value) => document.documentElement.style.setProperty(prop, vlue);
+export const setProperty = (prop, value) => document.documentElement.style.setProperty(prop, value);
 
 const setShouldMove = (shouldMove) => document.documentElement.style.setProperty('--shouldMove', shouldMove ? 1 : 0);
 
@@ -38,6 +38,7 @@ export const setProps = ({
   cursorSize,
   pointerRadius,
   pointerZIndex,
+  pointerAnimationDuration,
 }) => {
   const props = {
     smallPointerSize: smallPointerSize || '5px',
@@ -54,6 +55,7 @@ export const setProps = ({
     cursorSize: cursorSize || '5px',
     pointerRadius: pointerRadius || '100%',
     pointerZIndex: pointerZIndex || 1000000000,
+    pointerAnimationDuration: pointerAnimationDuration || 300,
   };
 
   updateProperties(props);
@@ -76,92 +78,78 @@ export const getProps = () => ({
   cursorSize: getProperty('--cursorSize'),
   pointerRadius: getProperty('--pointerRadius'),
   pointerZIndex: getProperty('--pointerZIndex'),
+  pointerAnimationDuration: getProperty('--pointerAnimationDuration'),
 });
 
+const trackMouse = () => {
+  const trackMouseOnMove = (e) => {
+    if (getShouldMove()) {
+      updateProperties({
+        pointerX: px(e.x),
+        pointerY: px(e.y),
+      });
+    }
+  };
+
+  document.addEventListener('mousemove', trackMouseOnMove);
+};
+
 export const init = () => {
+  if (getProperty('--pointerInit') !== '') {
+    console.warn('Another instance of duckling is already running, duckling should only be running once');
+    return {
+      interactionConfig: null,
+      initialProps: null,
+    };
+  }
+  setProperty('--pointerInit', 1);
+
   const position = {x: 0, y: 0};
 
   setShouldMove(true);
-
   createPointer();
   const initialProps = setProps({});
 
-  console.log(initialProps);
-
   document.documentElement.style.transition = 'ease-out all 300ms';
 
-  const launch = () => {
-    var moveOnScroll = (d) => {
-      updateProperties({
-        pointerX: px(position.x + d.x),
-        pointerY: px(position.y + d.y),
-      });
-      p.classList.remove('pointer--move');
-      p.classList.add('pointer--move');
-    };
+  trackMouse();
 
-    let scrollTimeout, start, end, distance;
+  const interactionConfig = new Map();
 
-    const onScrollMove = () => {
-      end = {y: window.pageYOffset, x: window.pageXOffset};
-      distance = {y: end.y - start.y, x: end.x - start.x};
-      moveOnScroll(distance, start, end);
-      start = distance = end = null;
-    };
+  const resetOut = () => {
+    updateProperties(initialProps, true);
+  };
 
-    const trackMouseOnMove = (e) => {
-      if (getShouldMove()) {
-        updateProperties({
-          pointerX: px(e.x),
-          pointerY: px(e.y),
-        });
+  const processCallback = ({target, callback}) => {
+    const callbackResponse = callback(target);
+    updateProperties(callbackResponse.props, callbackResponse.track);
+  };
+
+  const checkSeletorsAndDispatchCallback = (event) => {
+    for (let [selector, callback] of interactionConfig) {
+      const closest = event.target.closest(selector);
+      if (!!closest) {
+        processCallback({target: closest, callback: callback});
       }
-    };
-
-    document.addEventListener('mousemove', trackMouseOnMove);
+    }
   };
 
-  launch();
-
-  const loadInteractionListeners = (interactionConfig) => {
-    const resetOut = () => {
-      updateProperties(initialProps, true);
-    };
-
-    const processCallback = ({target, callback}) => {
-      const callbackResponse = callback(target);
-      updateProperties(callbackResponse.props, callbackResponse.track);
-    };
-
-    document.addEventListener(
-      'mouseover',
-      (event) => {
-        for (let selector in interactionConfig) {
-          console.log(!!event.target.closest(selector));
-          const closest = event.target.closest(selector);
-          if (!!closest) {
-            processCallback({target: closest, callback: interactionConfig[selector]});
-          }
-        }
-      },
-      false
-    );
-
-    document.addEventListener(
-      'mouseout',
-      (event) => {
-        for (let selector in interactionConfig) {
-          if (!!event.target.closest(selector)) {
-            resetOut();
-          }
-        }
-      },
-      false
-    );
+  const checkSeletorsAndResetVars = (event) => {
+    for (let [selector, callback] of interactionConfig) {
+      if (!!event.target.closest(selector)) {
+        resetOut();
+      }
+    }
   };
+
+  document.removeEventListener('mouseover', checkSeletorsAndDispatchCallback, false);
+  document.removeEventListener('mouseout', checkSeletorsAndResetVars, false);
+
+  document.addEventListener('mouseover', checkSeletorsAndDispatchCallback, false);
+  document.addEventListener('mouseout', checkSeletorsAndResetVars, false);
 
   return {
-    loadInteractionListeners,
+    interactionConfig,
     initialProps,
   };
 };

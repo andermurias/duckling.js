@@ -1,4 +1,122 @@
+import 'core-js/modules/es.array.iterator';
+import 'core-js/modules/es.map';
+import 'core-js/modules/es.object.to-string';
+import 'core-js/modules/es.string.iterator';
+import 'core-js/modules/web.dom-collections.iterator';
 import gsap from 'gsap';
+
+function _slicedToArray(arr, i) {
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+}
+
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
+function _iterableToArrayLimit(arr, i) {
+  if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
+}
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+function _createForOfIteratorHelper(o, allowArrayLike) {
+  var it;
+
+  if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+      if (it) o = it;
+      var i = 0;
+
+      var F = function () {};
+
+      return {
+        s: F,
+        n: function () {
+          if (i >= o.length) return {
+            done: true
+          };
+          return {
+            done: false,
+            value: o[i++]
+          };
+        },
+        e: function (e) {
+          throw e;
+        },
+        f: F
+      };
+    }
+
+    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  var normalCompletion = true,
+      didErr = false,
+      err;
+  return {
+    s: function () {
+      it = o[Symbol.iterator]();
+    },
+    n: function () {
+      var step = it.next();
+      normalCompletion = step.done;
+      return step;
+    },
+    e: function (e) {
+      didErr = true;
+      err = e;
+    },
+    f: function () {
+      try {
+        if (!normalCompletion && it.return != null) it.return();
+      } finally {
+        if (didErr) throw err;
+      }
+    }
+  };
+}
 
 var createPointer = function createPointer() {
   var pointer = document.createElement('div');
@@ -27,7 +145,7 @@ var getProperty = function getProperty(prop) {
   return getComputedStyle(document.documentElement).getPropertyValue(prop);
 };
 var setProperty = function setProperty(prop, value) {
-  return document.documentElement.style.setProperty(prop, vlue);
+  return document.documentElement.style.setProperty(prop, value);
 };
 
 var setShouldMove = function setShouldMove(shouldMove) {
@@ -68,7 +186,8 @@ var setProps = function setProps(_ref) {
       cursorScale = _ref.cursorScale,
       cursorSize = _ref.cursorSize,
       pointerRadius = _ref.pointerRadius,
-      pointerZIndex = _ref.pointerZIndex;
+      pointerZIndex = _ref.pointerZIndex,
+      pointerAnimationDuration = _ref.pointerAnimationDuration;
   var props = {
     smallPointerSize: smallPointerSize || '5px',
     pointerSize: pointerSize || '30px',
@@ -83,7 +202,8 @@ var setProps = function setProps(_ref) {
     cursorScale: cursorScale || 1,
     cursorSize: cursorSize || '5px',
     pointerRadius: pointerRadius || '100%',
-    pointerZIndex: pointerZIndex || 1000000000
+    pointerZIndex: pointerZIndex || 1000000000,
+    pointerAnimationDuration: pointerAnimationDuration || 300
   };
   updateProperties(props);
   return props;
@@ -103,68 +223,105 @@ var getProps = function getProps() {
     cursorScale: getProperty('--cursorScale'),
     cursorSize: getProperty('--cursorSize'),
     pointerRadius: getProperty('--pointerRadius'),
-    pointerZIndex: getProperty('--pointerZIndex')
+    pointerZIndex: getProperty('--pointerZIndex'),
+    pointerAnimationDuration: getProperty('--pointerAnimationDuration')
   };
 };
+
+var trackMouse = function trackMouse() {
+  var trackMouseOnMove = function trackMouseOnMove(e) {
+    if (getShouldMove()) {
+      updateProperties({
+        pointerX: px(e.x),
+        pointerY: px(e.y)
+      });
+    }
+  };
+
+  document.addEventListener('mousemove', trackMouseOnMove);
+};
+
 var init = function init() {
+  if (getProperty('--pointerInit') !== '') {
+    console.warn('Another instance of duckling is already running, duckling should only be running once');
+    return {
+      interactionConfig: null,
+      initialProps: null
+    };
+  }
+
+  setProperty('--pointerInit', 1);
   setShouldMove(true);
   createPointer();
   var initialProps = setProps({});
-  console.log(initialProps);
   document.documentElement.style.transition = 'ease-out all 300ms';
+  trackMouse();
+  var interactionConfig = new Map();
 
-  var launch = function launch() {
-
-    var trackMouseOnMove = function trackMouseOnMove(e) {
-      if (getShouldMove()) {
-        updateProperties({
-          pointerX: px(e.x),
-          pointerY: px(e.y)
-        });
-      }
-    };
-
-    document.addEventListener('mousemove', trackMouseOnMove);
+  var resetOut = function resetOut() {
+    updateProperties(initialProps, true);
   };
 
-  launch();
+  var processCallback = function processCallback(_ref2) {
+    var target = _ref2.target,
+        callback = _ref2.callback;
+    var callbackResponse = callback(target);
+    updateProperties(callbackResponse.props, callbackResponse.track);
+  };
 
-  var loadInteractionListeners = function loadInteractionListeners(interactionConfig) {
-    var resetOut = function resetOut() {
-      updateProperties(initialProps, true);
-    };
+  var checkSeletorsAndDispatchCallback = function checkSeletorsAndDispatchCallback(event) {
+    var _iterator = _createForOfIteratorHelper(interactionConfig),
+        _step;
 
-    var processCallback = function processCallback(_ref2) {
-      var target = _ref2.target,
-          callback = _ref2.callback;
-      var callbackResponse = callback(target);
-      updateProperties(callbackResponse.props, callbackResponse.track);
-    };
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var _step$value = _slicedToArray(_step.value, 2),
+            selector = _step$value[0],
+            callback = _step$value[1];
 
-    document.addEventListener('mouseover', function (event) {
-      for (var selector in interactionConfig) {
-        console.log(!!event.target.closest(selector));
         var closest = event.target.closest(selector);
 
         if (!!closest) {
           processCallback({
             target: closest,
-            callback: interactionConfig[selector]
+            callback: callback
           });
         }
       }
-    }, false);
-    document.addEventListener('mouseout', function (event) {
-      for (var selector in interactionConfig) {
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+  };
+
+  var checkSeletorsAndResetVars = function checkSeletorsAndResetVars(event) {
+    var _iterator2 = _createForOfIteratorHelper(interactionConfig),
+        _step2;
+
+    try {
+      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+        var _step2$value = _slicedToArray(_step2.value, 2),
+            selector = _step2$value[0],
+            callback = _step2$value[1];
+
         if (!!event.target.closest(selector)) {
           resetOut();
         }
       }
-    }, false);
+    } catch (err) {
+      _iterator2.e(err);
+    } finally {
+      _iterator2.f();
+    }
   };
 
+  document.removeEventListener('mouseover', checkSeletorsAndDispatchCallback, false);
+  document.removeEventListener('mouseout', checkSeletorsAndResetVars, false);
+  document.addEventListener('mouseover', checkSeletorsAndDispatchCallback, false);
+  document.addEventListener('mouseout', checkSeletorsAndResetVars, false);
   return {
-    loadInteractionListeners: loadInteractionListeners,
+    interactionConfig: interactionConfig,
     initialProps: initialProps
   };
 };
