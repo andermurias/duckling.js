@@ -1,7 +1,7 @@
 {
-  "name": "duckling",
-  "version": "1.0.0",
-  "description": "JS cursor follower",
+  "name": "duckling.js",
+  "version": "0.0.1",
+  "description": "Full js cursor follower, like ducklings to the mother duck",
   "main": "dist/duckling.cjs.js",
   "module": "dist/duckling.esm.js",
   "browser": "dist/duckling.umd.js",
