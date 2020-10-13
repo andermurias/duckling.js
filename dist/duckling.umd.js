@@ -5290,29 +5290,33 @@
         updateProperties(initialProps, true);
       };
 
-      var processCallback = function processCallback(current) {
-        return function (callback) {
-          return function () {
-            var callbackResponse = callback(current);
-            updateProperties(callbackResponse.props, callbackResponse.track);
-          };
-        };
+      var processCallback = function processCallback(_ref2) {
+        var target = _ref2.target,
+            callback = _ref2.callback;
+        var callbackResponse = callback(target);
+        updateProperties(callbackResponse.props, callbackResponse.track);
       };
 
-      var _loop = function _loop(selector) {
-        var callback = interactionConfig[selector];
-        var elems = document.querySelectorAll(selector);
-        elems.forEach(function (current) {
-          current.removeEventListener('mouseover', processCallback(current)(callback));
-          current.addEventListener('mouseover', processCallback(current)(callback));
-          current.removeEventListener('mouseout', resetOut);
-          current.addEventListener('mouseout', resetOut);
-        });
-      };
+      document.addEventListener('mouseover', function (event) {
+        for (var selector in interactionConfig) {
+          console.log(!!event.target.closest(selector));
+          var closest = event.target.closest(selector);
 
-      for (var selector in interactionConfig) {
-        _loop(selector);
-      }
+          if (!!closest) {
+            processCallback({
+              target: closest,
+              callback: interactionConfig[selector]
+            });
+          }
+        }
+      }, false);
+      document.addEventListener('mouseout', function (event) {
+        for (var selector in interactionConfig) {
+          if (!!event.target.closest(selector)) {
+            resetOut();
+          }
+        }
+      }, false);
     };
 
     return {

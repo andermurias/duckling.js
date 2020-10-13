@@ -3,9 +3,9 @@
 # duckling
 JS cursor followe for websites
 
-## How to use
-
 ---
+
+## How to use
 
 #### Install the depencencies
 
@@ -19,7 +19,7 @@ or
   npm install --save duckling
 ```
 
-#### Use it
+#### Add to your project
 
 Import in your project
 ```javascript

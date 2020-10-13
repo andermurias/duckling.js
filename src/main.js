@@ -128,23 +128,36 @@ export const init = () => {
       updateProperties(initialProps, true);
     };
 
-    const processCallback = (current) => (callback) => () => {
-      const callbackResponse = callback(current);
+    const processCallback = ({target, callback}) => {
+      const callbackResponse = callback(target);
       updateProperties(callbackResponse.props, callbackResponse.track);
     };
 
-    for (let selector in interactionConfig) {
-      const callback = interactionConfig[selector];
-      const elems = document.querySelectorAll(selector);
+    document.addEventListener(
+      'mouseover',
+      (event) => {
+        for (let selector in interactionConfig) {
+          console.log(!!event.target.closest(selector));
+          const closest = event.target.closest(selector);
+          if (!!closest) {
+            processCallback({target: closest, callback: interactionConfig[selector]});
+          }
+        }
+      },
+      false
+    );
 
-      elems.forEach((current) => {
-        current.removeEventListener('mouseover', processCallback(current)(callback));
-        current.addEventListener('mouseover', processCallback(current)(callback));
-
-        current.removeEventListener('mouseout', resetOut);
-        current.addEventListener('mouseout', resetOut);
-      });
-    }
+    document.addEventListener(
+      'mouseout',
+      (event) => {
+        for (let selector in interactionConfig) {
+          if (!!event.target.closest(selector)) {
+            resetOut();
+          }
+        }
+      },
+      false
+    );
   };
 
   return {
