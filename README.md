@@ -23,28 +23,27 @@ or
 
 Import in your project
 ```javascript
-import {init, getProps, px} from 'duckling';
+import {usePointer, helper} from 'duckling';
 ```
 
 Initialize
 ```javascript
-const {initialProps, interactionConfig} = init();
+const {initialProperties, interactionConfig} = usePointer();
 ```
 
 Generate the interactions
 ```javascript
 interactionConfig.set('.nav-item', (elem) => {
-    const coordinates = elem.getBoundingClientRect();
-    const props = getProps();
-    return {
-      props: {
-        pointerSize: px(parseInt(props.pointerSize) / 2),
-        pointerX: px(coordinates.left + coordinates.width / 2),
-        pointerY: px(coordinates.top + coordinates.height + 10),
-      },
-      track: false,
-    };
-  });
+  const coordinates = elem.getBoundingClientRect();
+  return {
+    props: {
+      pointerSize: helper.px(parseInt(initialProperties.pointerSize) / 2),
+      pointerX: helper.px(coordinates.left + coordinates.width / 2),
+      pointerY: helper.px(coordinates.top + coordinates.height + 10),
+    },
+    track: false,
+  };
+});
 ```
 
 `interactionConfig` is a Map class from js sou you can interact with it with methods like `set` or `delete`
