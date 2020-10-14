@@ -15,7 +15,6 @@ jobs:
       - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-      - run: cat .npmrc
       - run: npm publish
   create-release:
     runs-on: ubuntu-latest
