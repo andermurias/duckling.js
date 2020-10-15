@@ -1,6 +1,7 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
+import {terser} from 'rollup-plugin-terser';
 import pkg from './package.json';
 
 export default [
@@ -11,6 +12,7 @@ export default [
       name: 'duckling',
       file: pkg.browser,
       format: 'umd',
+      plugins: [terser()],
     },
     plugins: [
       resolve(), // so Rollup can find `ms`
@@ -31,8 +33,24 @@ export default [
   {
     input: 'src/index.js',
     output: [
-      // {file: pkg.main, format: 'cjs'},
+      {file: pkg.main, format: 'cjs'},
       {file: pkg.module, format: 'es'},
+    ],
+    external: [
+      'core-js/modules/es.array.iterator',
+      'core-js/modules/es.map',
+      'core-js/modules/es.object.to-string',
+      'core-js/modules/es.string.iterator',
+      'core-js/modules/web.dom-collections.iterator',
+      'core-js/modules/es.array.concat',
+      'core-js/modules/es.array.for-each',
+      'core-js/modules/es.object.keys',
+      'core-js/modules/web.dom-collections.for-each',
+      'core-js/modules/es.array.index-of',
+      'core-js/modules/es.array.map',
+      'core-js/modules/es.regexp.exec',
+      'core-js/modules/es.string.replace',
+      'gsap/all',
     ],
     plugins: [
       babel({

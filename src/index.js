@@ -1,21 +1,19 @@
 import {createPointer} from './element';
-import {px, setInitialProperties, updateProperties, getProperty, setProperty} from './helper';
-
-const helper = {px};
+import {px, setInitialProperties, updateProperties, getProperty, setProperty, getProperties} from './helper';
 
 const usePointer = (properties = {}) => {
   if (getProperty('pointerInit') !== '') {
     console.warn('Another instance of duckling is already running, duckling should only be running once');
     return {
+      pointer: null,
       interactionConfig: null,
-      initialProps: null,
+      initialProperties: null,
     };
   }
   setProperty('pointerInit', 1);
 
-  createPointer();
-
   const initialProperties = setInitialProperties(properties);
+  const pointer = createPointer(initialProperties);
 
   let state = {...initialProperties};
   const setState = (newState) => {
@@ -77,9 +75,14 @@ const usePointer = (properties = {}) => {
   requestAnimationFrame(updatePropertiesForAnimationFrame);
 
   return {
+    pointer,
     interactionConfig,
     initialProperties,
   };
+};
+
+const helper = {
+  px,
 };
 
 export default {

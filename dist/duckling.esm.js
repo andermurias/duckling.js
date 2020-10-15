@@ -3,7 +3,15 @@ import 'core-js/modules/es.map';
 import 'core-js/modules/es.object.to-string';
 import 'core-js/modules/es.string.iterator';
 import 'core-js/modules/web.dom-collections.iterator';
-import gsap from 'gsap';
+import 'core-js/modules/es.array.concat';
+import 'core-js/modules/es.array.for-each';
+import 'core-js/modules/es.object.keys';
+import 'core-js/modules/web.dom-collections.for-each';
+import 'core-js/modules/es.array.index-of';
+import 'core-js/modules/es.array.reduce';
+import 'core-js/modules/es.regexp.exec';
+import 'core-js/modules/es.string.replace';
+import { gsap } from 'gsap/all';
 
 function _defineProperty(obj, key, value) {
   if (key in obj) {
@@ -48,6 +56,42 @@ function _objectSpread2(target) {
       ownKeys(Object(source)).forEach(function (key) {
         Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
       });
+    }
+  }
+
+  return target;
+}
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
     }
   }
 
@@ -167,121 +211,103 @@ function _createForOfIteratorHelper(o, allowArrayLike) {
   };
 }
 
-var propertyPrefix = '--dck-';
+var propertyPrefix = '--duckling-';
+var defaultProperties = {
+  pointerX: 0,
+  pointerY: 0,
+  shouldMove: 1,
+  ease: 'power1.out',
+  scale: 1,
+  rotate: '0deg',
+  height: 30,
+  width: 30,
+  marginLeft: -15,
+  marginTop: -15,
+  opacity: 1,
+  backgroundColor: 'rgba(31,31,31,.3)',
+  borderColor: '#000000',
+  borderStyle: 'solid',
+  borderWidth: '1.5px',
+  borderRadius: '100%',
+  zIndex: 1000000,
+  transitionDuration: '300ms',
+  transitionTimingFunction: 'ease',
+  transformOrigin: '50%'
+};
 var px = function px(int) {
   return int + 'px';
 };
+var toKebabCase = function toKebabCase(str) {
+  return str.replace(/[A-Z]/g, function (letter) {
+    return "-".concat(letter.toLowerCase());
+  });
+};
+var getCssVarKey = function getCssVarKey(str) {
+  return propertyPrefix + toKebabCase(str);
+};
 var getProperty = function getProperty(prop) {
-  return getComputedStyle(document.documentElement).getPropertyValue(propertyPrefix + prop);
+  return getComputedStyle(document.documentElement).getPropertyValue(getCssVarKey(prop));
 };
 var setProperty = function setProperty(prop, value) {
-  return document.documentElement.style.setProperty(propertyPrefix + prop, value);
+  return document.documentElement.style.setProperty(getCssVarKey(prop), value);
+};
+var isPxValue = function isPxValue(value) {
+  return ['scale', 'rotate', 'shouldMove', 'opacity', 'transitionDuration'].indexOf(value) === -1;
 };
 var updateProperties = function updateProperties() {
   var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
   properties = properties || getProperties();
   var cssVars = {
-    duration: properties.pointerAnimationDuration / 1000
+    duration: parseInt(properties.transitionDuration) / 1000,
+    ease: properties.ease
   };
 
   for (var key in properties) {
-    cssVars[propertyPrefix + key] = properties[key];
+    var value = properties[key];
+    cssVars[getCssVarKey(key)] = typeof value === 'number' && isPxValue(key) ? px(value) : value;
   }
 
   gsap.to('html', cssVars);
 };
-var setInitialProperties = function setInitialProperties(_ref) {
-  var _ref$smallPointerSize = _ref.smallPointerSize,
-      smallPointerSize = _ref$smallPointerSize === void 0 ? '5px' : _ref$smallPointerSize,
-      _ref$pointerSize = _ref.pointerSize,
-      pointerSize = _ref$pointerSize === void 0 ? '30px' : _ref$pointerSize,
-      _ref$pointerOpacity = _ref.pointerOpacity,
-      pointerOpacity = _ref$pointerOpacity === void 0 ? 1 : _ref$pointerOpacity,
-      _ref$pointerBackgroun = _ref.pointerBackground,
-      pointerBackground = _ref$pointerBackgroun === void 0 ? 'rgba(31,31,31,.3)' : _ref$pointerBackgroun,
-      _ref$pointerBorderCol = _ref.pointerBorderColor,
-      pointerBorderColor = _ref$pointerBorderCol === void 0 ? '#000000' : _ref$pointerBorderCol,
-      _ref$pointerScale = _ref.pointerScale,
-      pointerScale = _ref$pointerScale === void 0 ? 1 : _ref$pointerScale,
-      _ref$pointerX = _ref.pointerX,
-      pointerX = _ref$pointerX === void 0 ? 0 : _ref$pointerX,
-      _ref$pointerY = _ref.pointerY,
-      pointerY = _ref$pointerY === void 0 ? 0 : _ref$pointerY,
-      _ref$pointerBorderSty = _ref.pointerBorderStyle,
-      pointerBorderStyle = _ref$pointerBorderSty === void 0 ? 'solid' : _ref$pointerBorderSty,
-      _ref$pointerBorderWid = _ref.pointerBorderWidth,
-      pointerBorderWidth = _ref$pointerBorderWid === void 0 ? '1.5px' : _ref$pointerBorderWid,
-      _ref$pointerRadius = _ref.pointerRadius,
-      pointerRadius = _ref$pointerRadius === void 0 ? '100%' : _ref$pointerRadius,
-      _ref$pointerZIndex = _ref.pointerZIndex,
-      pointerZIndex = _ref$pointerZIndex === void 0 ? 1000000000 : _ref$pointerZIndex,
-      _ref$pointerAnimation = _ref.pointerAnimationDuration,
-      pointerAnimationDuration = _ref$pointerAnimation === void 0 ? 300 : _ref$pointerAnimation,
-      _ref$shouldMove = _ref.shouldMove,
-      shouldMove = _ref$shouldMove === void 0 ? 1 : _ref$shouldMove;
-  var props = {
-    smallPointerSize: smallPointerSize,
-    pointerSize: pointerSize,
-    pointerOpacity: pointerOpacity,
-    pointerBackground: pointerBackground,
-    pointerBorderColor: pointerBorderColor,
-    pointerX: pointerY,
-    pointerY: pointerX,
-    pointerScale: pointerScale,
-    pointerBorderStyle: pointerBorderStyle,
-    pointerBorderWidth: pointerBorderWidth,
-    pointerRadius: pointerRadius,
-    pointerZIndex: pointerZIndex,
-    pointerAnimationDuration: pointerAnimationDuration,
-    shouldMove: shouldMove
-  };
-  updateProperties(props);
-  return props;
+var setInitialProperties = function setInitialProperties(givenProperties) {
+  var properties = _objectSpread2(_objectSpread2({}, defaultProperties), givenProperties);
+
+  updateProperties(properties);
+  return properties;
 };
-var getProperties = function getProperties() {
-  return {
-    smallPointerSize: getProperty('smallPointerSize'),
-    pointerSize: getProperty('pointerSize'),
-    pointerOpacity: getProperty('pointerOpacity'),
-    pointerBackground: getProperty('pointerBackground'),
-    pointerBorderColor: getProperty('pointerBorderColor'),
-    pointerX: getProperty('pointerX'),
-    pointerY: getProperty('pointerY'),
-    pointerScale: getProperty('pointerScale'),
-    pointerBorderStyle: getProperty('pointerBorderStyle'),
-    pointerBorderWidth: getProperty('pointerBorderWidth'),
-    pointerRadius: getProperty('pointerRadius'),
-    pointerZIndex: getProperty('pointerZIndex'),
-    pointerAnimationDuration: getProperty('pointerAnimationDuration'),
-    shouldMove: getProperty('shouldMove')
-  };
+var getProperties = function getProperties(props) {
+  return Object.keys(props).reduce(function (carry, key) {
+    return (carry[key] = getProperty(key)) && carry;
+  }, {});
 };
 
-var createPointer = function createPointer() {
+var createPointer = function createPointer(_ref) {
+  var pointerX = _ref.pointerX,
+      pointerY = _ref.pointerY,
+      scale = _ref.scale,
+      height = _ref.height,
+      width = _ref.width,
+      rest = _objectWithoutProperties(_ref, ["pointerX", "pointerY", "scale", "height", "width"]);
+
   var pointer = document.createElement('div');
-  pointer.style.setProperty(propertyPrefix + 'pointerPadding', 'calc(var(' + propertyPrefix + 'pointerSize) / 2)');
-  pointer.style.background = 'var(' + propertyPrefix + 'pointerBackground)';
-  pointer.style.borderWidth = 'var(' + propertyPrefix + 'pointerBorderWidth)';
-  pointer.style.borderStyle = 'var(' + propertyPrefix + 'pointerBorderStyle)';
-  pointer.style.borderColor = 'var(' + propertyPrefix + 'pointerBorderColor)';
-  pointer.style.borderRadius = 'var(' + propertyPrefix + 'pointerRadius)';
-  pointer.style.left = '0';
-  pointer.style.marginLeft = 'calc((var(' + propertyPrefix + 'pointerPadding) + var(' + propertyPrefix + 'pointerBorderWidth)) * -1)';
-  pointer.style.marginTop = 'calc((var(' + propertyPrefix + 'pointerPadding) + var(' + propertyPrefix + 'pointerBorderWidth)) * -1)';
-  pointer.style.opacity = 'var(' + propertyPrefix + 'pointerOpacity)';
-  pointer.style.padding = 'var(' + propertyPrefix + 'pointerPadding)';
-  pointer.style.pointerEvents = 'none';
+  pointer.className = 'duckling__pointer';
+  pointer.id = 'duckling-pointer';
+  Object.keys(_objectSpread2({
+    height: height,
+    width: width
+  }, rest)).forEach(function (element) {
+    pointer.style[element] = "var(".concat(getCssVarKey(element), ")");
+  });
+  pointer.style.transitionDuration = 'initial';
+  pointer.style.transitionProperty = 'initial';
+  pointer.style.transform = "scale(var(".concat(getCssVarKey('scale'), ")) rotate(var(").concat(getCssVarKey('rotate'), "))");
+  pointer.style.left = "var(".concat(getCssVarKey('pointerX'), ")");
+  pointer.style.top = "var(".concat(getCssVarKey('pointerY'), ")");
   pointer.style.position = 'fixed';
-  pointer.style.top = '0';
-  pointer.style.transform = 'scale(var(' + propertyPrefix + 'pointerScale)) matrix(1, 0, 0, 1, 0, 0) translate3d(var(' + propertyPrefix + 'pointerX), var(' + propertyPrefix + 'pointerY), 10px)';
-  pointer.style.transformOrigin = '50%';
   pointer.style.webkitBackfaceVisibility = 'visible';
-  pointer.style.zIndex = 'var(' + propertyPrefix + 'pointerZIndex)';
+  pointer.style.pointerEvents = 'none';
   document.body.append(pointer);
-};
-
-var helper = {
-  px: px
+  return pointer;
 };
 
 var usePointer = function usePointer() {
@@ -290,14 +316,15 @@ var usePointer = function usePointer() {
   if (getProperty('pointerInit') !== '') {
     console.warn('Another instance of duckling is already running, duckling should only be running once');
     return {
+      pointer: null,
       interactionConfig: null,
-      initialProps: null
+      initialProperties: null
     };
   }
 
   setProperty('pointerInit', 1);
-  createPointer();
   var initialProperties = setInitialProperties(properties);
+  var pointer = createPointer(initialProperties);
 
   var state = _objectSpread2({}, initialProperties);
 
@@ -387,11 +414,15 @@ var usePointer = function usePointer() {
 
   requestAnimationFrame(updatePropertiesForAnimationFrame);
   return {
+    pointer: pointer,
     interactionConfig: interactionConfig,
     initialProperties: initialProperties
   };
 };
 
+var helper = {
+  px: px
+};
 var index = {
   usePointer: usePointer,
   helper: helper

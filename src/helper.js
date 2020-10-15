@@ -1,75 +1,65 @@
-import gsap from 'gsap';
+import {gsap} from 'gsap/all';
 
-export const propertyPrefix = '--dck-';
+export const propertyPrefix = '--duckling-';
+
+const defaultProperties = {
+  pointerX: 0,
+  pointerY: 0,
+  shouldMove: 1,
+  ease: 'power1.out',
+  scale: 1,
+  rotate: '0deg',
+  height: 30,
+  width: 30,
+  marginLeft: -15,
+  marginTop: -15,
+  opacity: 1,
+  backgroundColor: 'rgba(31,31,31,.3)',
+  borderColor: '#000000',
+  borderStyle: 'solid',
+  borderWidth: '1.5px',
+  borderRadius: '100%',
+  zIndex: 1000000,
+  transitionDuration: '300ms',
+  transitionTimingFunction: 'ease',
+  transformOrigin: '50%',
+};
 
 export const px = (int) => int + 'px';
 
-export const getProperty = (prop) => getComputedStyle(document.documentElement).getPropertyValue(propertyPrefix + prop);
-export const setProperty = (prop, value) => document.documentElement.style.setProperty(propertyPrefix + prop, value);
+export const toKebabCase = (str) => str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+export const toCamelCase = (str) => str.replace(/\-([a-z])/g, (letter) => letter[1].toUpperCase());
+
+export const getCssVarKey = (str) => propertyPrefix + toKebabCase(str);
+
+export const getProperty = (prop) => getComputedStyle(document.documentElement).getPropertyValue(getCssVarKey(prop));
+export const setProperty = (prop, value) => document.documentElement.style.setProperty(getCssVarKey(prop), value);
+
+export const isPxValue = (value) =>
+  ['scale', 'rotate', 'shouldMove', 'opacity', 'transitionDuration'].indexOf(value) === -1;
 
 export const updateProperties = (properties = null) => {
   properties = properties || getProperties();
 
   const cssVars = {
-    duration: properties.pointerAnimationDuration / 1000,
+    duration: parseInt(properties.transitionDuration) / 1000,
+    ease: properties.ease,
   };
   for (let key in properties) {
-    cssVars[propertyPrefix + key] = properties[key];
+    const value = properties[key];
+    cssVars[getCssVarKey(key)] = typeof value === 'number' && isPxValue(key) ? px(value) : value;
   }
   gsap.to('html', cssVars);
 };
 
-export const setInitialProperties = ({
-  smallPointerSize = '5px',
-  pointerSize = '30px',
-  pointerOpacity = 1,
-  pointerBackground = 'rgba(31,31,31,.3)',
-  pointerBorderColor = '#000000',
-  pointerScale = 1,
-  pointerX = 0,
-  pointerY = 0,
-  pointerBorderStyle = 'solid',
-  pointerBorderWidth = '1.5px',
-  pointerRadius = '100%',
-  pointerZIndex = 1000000000,
-  pointerAnimationDuration = 300,
-  shouldMove = 1,
-}) => {
-  const props = {
-    smallPointerSize: smallPointerSize,
-    pointerSize: pointerSize,
-    pointerOpacity: pointerOpacity,
-    pointerBackground: pointerBackground,
-    pointerBorderColor: pointerBorderColor,
-    pointerX: pointerY,
-    pointerY: pointerX,
-    pointerScale: pointerScale,
-    pointerBorderStyle: pointerBorderStyle,
-    pointerBorderWidth: pointerBorderWidth,
-    pointerRadius: pointerRadius,
-    pointerZIndex: pointerZIndex,
-    pointerAnimationDuration: pointerAnimationDuration,
-    shouldMove: shouldMove,
+export const setInitialProperties = (givenProperties) => {
+  const properties = {
+    ...defaultProperties,
+    ...givenProperties,
   };
-
-  updateProperties(props);
-
-  return props;
+  updateProperties(properties);
+  return properties;
 };
 
-export const getProperties = () => ({
-  smallPointerSize: getProperty('smallPointerSize'),
-  pointerSize: getProperty('pointerSize'),
-  pointerOpacity: getProperty('pointerOpacity'),
-  pointerBackground: getProperty('pointerBackground'),
-  pointerBorderColor: getProperty('pointerBorderColor'),
-  pointerX: getProperty('pointerX'),
-  pointerY: getProperty('pointerY'),
-  pointerScale: getProperty('pointerScale'),
-  pointerBorderStyle: getProperty('pointerBorderStyle'),
-  pointerBorderWidth: getProperty('pointerBorderWidth'),
-  pointerRadius: getProperty('pointerRadius'),
-  pointerZIndex: getProperty('pointerZIndex'),
-  pointerAnimationDuration: getProperty('pointerAnimationDuration'),
-  shouldMove: getProperty('shouldMove'),
-});
+export const getProperties = (props) =>
+  Object.keys(props).reduce((carry, key) => (carry[key] = getProperty(key)) && carry, {});
