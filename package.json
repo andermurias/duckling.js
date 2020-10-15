@@ -9,6 +9,15 @@
   "repository": "git@github.com:andermurias/duckling.js.git",
   "author": "Ander Murias <ander@murias.nl>",
   "license": "MIT",
+  "keywords": [
+    "cursor",
+    "pointer",
+    "tracker",
+    "ui",
+    "ux",
+    "follow",
+    "animation"
+  ],
   "dependencies": {
     "gsap": "^3.5.1",
     "core-js": "^3.6.5"
