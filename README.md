@@ -10,20 +10,20 @@ JS cursor followe for websites
 #### Install the depencencies
 
 ```bash
-  yarn add duckling
+  yarn add duckling.js
 ```
 
 or 
 
 ```bash
-  npm install --save duckling
+  npm install --save duckling.js
 ```
 
 #### Add to your project
 
 Import in your project
 ```javascript
-import {usePointer, helper} from 'duckling';
+import {usePointer, helper} from 'duckling.js';
 ```
 
 Initialize
