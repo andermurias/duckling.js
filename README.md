@@ -47,3 +47,9 @@ interactionConfig.set('.nav-item', (elem) => {
 ```
 
 `interactionConfig` is a Map class from js sou you can interact with it with methods like `set` or `delete`
+
+## Try it
+
+If you want to test it out, here is a codesnadbox with some examples
+
+[CodeSandbox: https://codesandbox.io/s/adoring-lake-v5j9l](https://codesandbox.io/s/adoring-lake-v5j9l?file=/src/index.js)
