@@ -52,4 +52,4 @@ interactionConfig.set('.nav-item', (elem) => {
 
 If you want to test it out, here is a codesnadbox with some examples
 
-[CodeSandbox: https://codesandbox.io/s/adoring-lake-v5j9l](https://codesandbox.io/s/adoring-lake-v5j9l?file=/src/index.js)
+[CodeSandbox: https://codesandbox.io/s/duckling-example-v5j9l](https://codesandbox.io/s/duckling-example-v5j9lfile=/src/index.js)
